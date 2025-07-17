@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>1年出席記録 202</title>
+<style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        button {
+            margin: 5px;
+            padding: 5px;
+        }
+    </style>
+<script>
+        // ページの読み込み時にローカルストレージのデータをロード
+window.onload = function() {
+    const rowCount = 345; // 行数を正確に指定
+    for (let i = 301; i <= rowCount; i++) {
+        ['出席', '遅刻', '早退', '欠席', 'トイレ時間'].forEach(type => {
+            const storedValue = localStorage.getItem(type + i);
+            if (storedValue) {
+                if (type === 'トイレ時間') {
+                    const elapsed = parseFloat(storedValue);
+                    const minutes = Math.floor(elapsed / 60000);
+                    const seconds = Math.floor((elapsed % 60000) / 1000);
+                    document.getElementById(type + i).innerHTML = minutes + " 分 " + seconds + " 秒";
+                } else {
+                    document.getElementById(type + i).innerHTML = storedValue;
+                }
+            }
+        });
+
+        // 備考の内容をローカルストレージからロード
+        const remarks = localStorage.getItem('備考' + i);
+        if (remarks) {
+            document.getElementById('備考' + i).value = remarks; // テキストエリアに設定
+        }
+    }
+}
+
+// 備考欄に入力があった際にローカルストレージに保存
+function saveRemarks(row) {
+    const remarks = document.getElementById('備考' + row).value;
+    localStorage.setItem('備考' + row, remarks); // ローカルストレージに保存
+}
+
+
+
+        // 出席、遅刻、早退、欠席ボタンの処理
+function toggleAttendance(row, type) {
+    const cell = document.getElementById(type + row); // 対象のセルを取得
+    const currentValue = cell.innerHTML; // 現在のセルの内容を取得
+
+    if (type === '出席' || type === '早退') {
+        if (currentValue === '') {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const time = `${hours}:${minutes}`; // 時刻を取得
+
+            if (type === '出席') {
+                cell.innerHTML = `〇 ${time}`; // 出席の場合に時刻を表示
+            } else if (type === '早退') {
+                cell.innerHTML = `△ ${time}`; // 早退の場合に時刻を表示
+            }
+
+            localStorage.setItem(type + row, cell.innerHTML); // ローカルストレージに保存
+        } else {
+            cell.innerHTML = '';
+            localStorage.removeItem(type + row); // ローカルストレージから削除
+        }
+    } else {
+        // 遅刻や欠席の処理
+        let mark = '';
+        if (type === '遅刻') mark = '△';
+        else if (type === '欠席') mark = '欠';
+
+        if (currentValue === '') {
+            cell.innerHTML = mark;
+            localStorage.setItem(type + row, mark); // ローカルストレージに保存
+        } else {
+            cell.innerHTML = '';
+            localStorage.removeItem(type + row); // ローカルストレージから削除
+        }
+    }
+}
+
+
+
+
+
+        // ストップウォッチの処理
+        let timers = {};
+
+        function startTimer(row) {
+            if (!timers[row]) {
+                timers[row] = {
+                    startTime: Date.now(),
+                    elapsed: parseFloat(localStorage.getItem('トイレ時間' + row)) || 0,
+                    interval: null
+                };
+            }
+            if (!timers[row].interval) {
+                timers[row].startTime = Date.now() - timers[row].elapsed;
+                timers[row].interval = setInterval(function () {
+                    timers[row].elapsed = Date.now() - timers[row].startTime;
+                    const minutes = Math.floor(timers[row].elapsed / 60000);
+                    const seconds = Math.floor((timers[row].elapsed % 60000) / 1000);
+                    document.getElementById('トイレ時間' + row).innerHTML = minutes + " 分 " + seconds + " 秒";
+                    localStorage.setItem('トイレ時間' + row, timers[row].elapsed);
+                }, 1000);
+            }
+        }
+
+        function stopTimer(row) {
+            if (timers[row] && timers[row].interval) {
+                clearInterval(timers[row].interval);
+                timers[row].interval = null;
+                localStorage.setItem('トイレ時間' + row, timers[row].elapsed);
+            }
+        }
+
+        // トイレ時間をリセットする処理
+        function resetTimer(row) {
+            if (timers[row]) {
+                clearInterval(timers[row].interval);
+                timers[row] = null;
+            }
+            document.getElementById('トイレ時間' + row).innerHTML = "0 分 0 秒";
+            localStorage.removeItem('トイレ時間' + row); // ローカルストレージから削除
+        }
+    </script>
+</head>
+<body>
+<h1>出席記録</h1>
+<table>
+<thead>
+<tr>
+<th>番号</th>
+<th>名前</th>
+<th>出席</th>
+<th>遅刻</th>
+<th>早退</th>
+<th>欠席</th>
+<th>トイレ時間</th>
+<th>備考</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<!-- ここから、308〜345まで同様に記述します -->
+<!-- 302から345まで同様の処理を追加 -->
+<tr>
+<td>24GB101</td><td>ERGASHEV DILSHOD</td><td id="出席101"></td><td id="遅刻101"></td><td id="早退101"></td><td id="欠席101"></td>
+<td id="トイレ時間101">0 分 0 秒</td><td><textarea id="備考101" oninput="saveRemarks(101)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(101, '出席')">出席</button>
+<button onclick="toggleAttendance(101, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(101, '早退')">早退</button>
+<button onclick="toggleAttendance(101, '欠席')">欠席</button><br/>
+<button onclick="startTimer(101)">トイレ開始</button>
+<button onclick="stopTimer(101)">トイレ停止</button>
+<button onclick="resetTimer(101)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB102</td><td>DHANUSHA JAYASEKARA</td><td id="出席102"></td><td id="遅刻102"></td><td id="早退102"></td><td id="欠席102"></td>
+<td id="トイレ時間102">0 分 0 秒</td><td><textarea id="備考102" oninput="saveRemarks(102)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(102, '出席')">出席</button>
+<button onclick="toggleAttendance(102, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(102, '早退')">早退</button>
+<button onclick="toggleAttendance(102, '欠席')">欠席</button><br/>
+<button onclick="startTimer(102)">トイレ開始</button>
+<button onclick="stopTimer(102)">トイレ停止</button>
+<button onclick="resetTimer(102)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB103</td><td>SALAHUDEEN MANAS</td><td id="出席103"></td><td id="遅刻103"></td><td id="早退103"></td><td id="欠席103"></td>
+<td id="トイレ時間103">0 分 0 秒</td><td><textarea id="備考103" oninput="saveRemarks(103)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(103, '出席')">出席</button>
+<button onclick="toggleAttendance(103, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(103, '早退')">早退</button>
+<button onclick="toggleAttendance(103, '欠席')">欠席</button><br/>
+<button onclick="startTimer(103)">トイレ開始</button>
+<button onclick="stopTimer(103)">トイレ停止</button>
+<button onclick="resetTimer(103)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB104</td><td>JIANG DEKUI</td><td id="出席104"></td><td id="遅刻104"></td><td id="早退104"></td><td id="欠席104"></td>
+<td id="トイレ時間104">0 分 0 秒</td><td><textarea id="備考104" oninput="saveRemarks(104)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(104, '出席')">出席</button>
+<button onclick="toggleAttendance(104, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(104, '早退')">早退</button>
+<button onclick="toggleAttendance(104, '欠席')">欠席</button><br/>
+<button onclick="startTimer(104)">トイレ開始</button>
+<button onclick="stopTimer(104)">トイレ停止</button>
+<button onclick="resetTimer(104)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB105</td><td>BASYAL DILLI</td><td id="出席105"></td><td id="遅刻105"></td><td id="早退105"></td><td id="欠席105"></td>
+<td id="トイレ時間105">0 分 0 秒</td><td><textarea id="備考105" oninput="saveRemarks(105)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(105, '出席')">出席</button>
+<button onclick="toggleAttendance(105, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(105, '早退')">早退</button>
+<button onclick="toggleAttendance(105, '欠席')">欠席</button><br/>
+<button onclick="startTimer(105)">トイレ開始</button>
+<button onclick="stopTimer(105)">トイレ停止</button>
+<button onclick="resetTimer(105)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB106</td><td>BHATTA THAKUR</td><td id="出席106"></td><td id="遅刻106"></td><td id="早退106"></td><td id="欠席106"></td>
+<td id="トイレ時間106">0 分 0 秒</td><td><textarea id="備考106" oninput="saveRemarks(106)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(106, '出席')">出席</button>
+<button onclick="toggleAttendance(106, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(106, '早退')">早退</button>
+<button onclick="toggleAttendance(106, '欠席')">欠席</button><br/>
+<button onclick="startTimer(106)">トイレ開始</button>
+<button onclick="stopTimer(106)">トイレ停止</button>
+<button onclick="resetTimer(106)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB107</td><td>BINADI PUSPA RAJ</td><td id="出席107"></td><td id="遅刻107"></td><td id="早退107"></td><td id="欠席107"></td>
+<td id="トイレ時間107">0 分 0 秒</td><td><textarea id="備考107" oninput="saveRemarks(107)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(107, '出席')">出席</button>
+<button onclick="toggleAttendance(107, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(107, '早退')">早退</button>
+<button onclick="toggleAttendance(107, '欠席')">欠席</button><br/>
+<button onclick="startTimer(107)">トイレ開始</button>
+<button onclick="stopTimer(107)">トイレ停止</button>
+<button onclick="resetTimer(107)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB108</td><td>CHHETRI ROHIT</td><td id="出席108"></td><td id="遅刻108"></td><td id="早退108"></td><td id="欠席108"></td>
+<td id="トイレ時間108">0 分 0 秒</td><td><textarea id="備考108" oninput="saveRemarks(108)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(108, '出席')">出席</button>
+<button onclick="toggleAttendance(108, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(108, '早退')">早退</button>
+<button onclick="toggleAttendance(108, '欠席')">欠席</button><br/>
+<button onclick="startTimer(108)">トイレ開始</button>
+<button onclick="stopTimer(108)">トイレ停止</button>
+<button onclick="resetTimer(108)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB109</td><td>KAPRI DIPA</td><td id="出席109"></td><td id="遅刻109"></td><td id="早退109"></td><td id="欠席109"></td>
+<td id="トイレ時間109">0 分 0 秒</td><td><textarea id="備考109" oninput="saveRemarks(109)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(109, '出席')">出席</button>
+<button onclick="toggleAttendance(109, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(109, '早退')">早退</button>
+<button onclick="toggleAttendance(109, '欠席')">欠席</button><br/>
+<button onclick="startTimer(109)">トイレ開始</button>
+<button onclick="stopTimer(109)">トイレ停止</button>
+<button onclick="resetTimer(109)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB110</td><td>KARKI CHANDRAKALA</td><td id="出席110"></td><td id="遅刻110"></td><td id="早退110"></td><td id="欠席110"></td>
+<td id="トイレ時間110">0 分 0 秒</td><td><textarea id="備考110" oninput="saveRemarks(110)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(110, '出席')">出席</button>
+<button onclick="toggleAttendance(110, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(110, '早退')">早退</button>
+<button onclick="toggleAttendance(110, '欠席')">欠席</button><br/>
+<button onclick="startTimer(110)">トイレ開始</button>
+<button onclick="stopTimer(110)">トイレ停止</button>
+<button onclick="resetTimer(110)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB111</td><td>KARKI NAMRATA</td><td id="出席111"></td><td id="遅刻111"></td><td id="早退111"></td><td id="欠席111"></td>
+<td id="トイレ時間111">0 分 0 秒</td><td><textarea id="備考111" oninput="saveRemarks(111)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(111, '出席')">出席</button>
+<button onclick="toggleAttendance(111, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(111, '早退')">早退</button>
+<button onclick="toggleAttendance(111, '欠席')">欠席</button><br/>
+<button onclick="startTimer(111)">トイレ開始</button>
+<button onclick="stopTimer(111)">トイレ停止</button>
+<button onclick="resetTimer(111)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB112</td><td>KARKI SUMAN</td><td id="出席112"></td><td id="遅刻112"></td><td id="早退112"></td><td id="欠席112"></td>
+<td id="トイレ時間112">0 分 0 秒</td><td><textarea id="備考112" oninput="saveRemarks(112)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(112, '出席')">出席</button>
+<button onclick="toggleAttendance(112, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(112, '早退')">早退</button>
+<button onclick="toggleAttendance(112, '欠席')">欠席</button><br/>
+<button onclick="startTimer(112)">トイレ開始</button>
+<button onclick="stopTimer(112)">トイレ停止</button>
+<button onclick="resetTimer(112)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB113</td><td>KHADKA ANJU</td><td id="出席113"></td><td id="遅刻113"></td><td id="早退113"></td><td id="欠席113"></td>
+<td id="トイレ時間113">0 分 0 秒</td><td><textarea id="備考113" oninput="saveRemarks(113)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(113, '出席')">出席</button>
+<button onclick="toggleAttendance(113, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(113, '早退')">早退</button>
+<button onclick="toggleAttendance(113, '欠席')">欠席</button><br/>
+<button onclick="startTimer(113)">トイレ開始</button>
+<button onclick="stopTimer(113)">トイレ停止</button>
+<button onclick="resetTimer(113)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB114</td><td>KHADKA SANTOSH</td><td id="出席114"></td><td id="遅刻114"></td><td id="早退114"></td><td id="欠席114"></td>
+<td id="トイレ時間114">0 分 0 秒</td><td><textarea id="備考114" oninput="saveRemarks(114)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(114, '出席')">出席</button>
+<button onclick="toggleAttendance(114, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(114, '早退')">早退</button>
+<button onclick="toggleAttendance(114, '欠席')">欠席</button><br/>
+<button onclick="startTimer(114)">トイレ開始</button>
+<button onclick="stopTimer(114)">トイレ停止</button>
+<button onclick="resetTimer(114)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB115</td><td>KHATI DIBASH</td><td id="出席115"></td><td id="遅刻115"></td><td id="早退115"></td><td id="欠席115"></td>
+<td id="トイレ時間115">0 分 0 秒</td><td><textarea id="備考115" oninput="saveRemarks(115)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(115, '出席')">出席</button>
+<button onclick="toggleAttendance(115, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(115, '早退')">早退</button>
+<button onclick="toggleAttendance(115, '欠席')">欠席</button><br/>
+<button onclick="startTimer(115)">トイレ開始</button>
+<button onclick="stopTimer(115)">トイレ停止</button>
+<button onclick="resetTimer(115)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB116</td><td>KHATRI BISHAL</td><td id="出席116"></td><td id="遅刻116"></td><td id="早退116"></td><td id="欠席116"></td>
+<td id="トイレ時間116">0 分 0 秒</td><td><textarea id="備考116" oninput="saveRemarks(116)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(116, '出席')">出席</button>
+<button onclick="toggleAttendance(116, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(116, '早退')">早退</button>
+<button onclick="toggleAttendance(116, '欠席')">欠席</button><br/>
+<button onclick="startTimer(116)">トイレ開始</button>
+<button onclick="stopTimer(116)">トイレ停止</button>
+<button onclick="resetTimer(116)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB117</td><td>NEPAL MANOJ</td><td id="出席117"></td><td id="遅刻117"></td><td id="早退117"></td><td id="欠席117"></td>
+<td id="トイレ時間117">0 分 0 秒</td><td><textarea id="備考117" oninput="saveRemarks(117)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(117, '出席')">出席</button>
+<button onclick="toggleAttendance(117, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(117, '早退')">早退</button>
+<button onclick="toggleAttendance(117, '欠席')">欠席</button><br/>
+<button onclick="startTimer(117)">トイレ開始</button>
+<button onclick="stopTimer(117)">トイレ停止</button>
+<button onclick="resetTimer(117)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB118</td><td>NEPALI ASHISH</td><td id="出席118"></td><td id="遅刻118"></td><td id="早退118"></td><td id="欠席118"></td>
+<td id="トイレ時間118">0 分 0 秒</td><td><textarea id="備考118" oninput="saveRemarks(118)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(118, '出席')">出席</button>
+<button onclick="toggleAttendance(118, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(118, '早退')">早退</button>
+<button onclick="toggleAttendance(118, '欠席')">欠席</button><br/>
+<button onclick="startTimer(118)">トイレ開始</button>
+<button onclick="stopTimer(118)">トイレ停止</button>
+<button onclick="resetTimer(118)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB119</td><td>NEUPANE K C BISHNU</td><td id="出席119"></td><td id="遅刻119"></td><td id="早退119"></td><td id="欠席119"></td>
+<td id="トイレ時間119">0 分 0 秒</td><td><textarea id="備考119" oninput="saveRemarks(119)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(119, '出席')">出席</button>
+<button onclick="toggleAttendance(119, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(119, '早退')">早退</button>
+<button onclick="toggleAttendance(119, '欠席')">欠席</button><br/>
+<button onclick="startTimer(119)">トイレ開始</button>
+<button onclick="stopTimer(119)">トイレ停止</button>
+<button onclick="resetTimer(119)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB120</td><td>REGMI SUMAN</td><td id="出席120"></td><td id="遅刻120"></td><td id="早退120"></td><td id="欠席120"></td>
+<td id="トイレ時間120">0 分 0 秒</td><td><textarea id="備考120" oninput="saveRemarks(120)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(120, '出席')">出席</button>
+<button onclick="toggleAttendance(120, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(120, '早退')">早退</button>
+<button onclick="toggleAttendance(120, '欠席')">欠席</button><br/>
+<button onclick="startTimer(120)">トイレ開始</button>
+<button onclick="stopTimer(120)">トイレ停止</button>
+<button onclick="resetTimer(120)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB121</td><td>SAPKOTA BINIL</td><td id="出席121"></td><td id="遅刻121"></td><td id="早退121"></td><td id="欠席121"></td>
+<td id="トイレ時間121">0 分 0 秒</td><td><textarea id="備考121" oninput="saveRemarks(121)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(121, '出席')">出席</button>
+<button onclick="toggleAttendance(121, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(121, '早退')">早退</button>
+<button onclick="toggleAttendance(121, '欠席')">欠席</button><br/>
+<button onclick="startTimer(121)">トイレ開始</button>
+<button onclick="stopTimer(121)">トイレ停止</button>
+<button onclick="resetTimer(121)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB122</td><td>SAPKOTA KESHAV PRASAD</td><td id="出席122"></td><td id="遅刻122"></td><td id="早退122"></td><td id="欠席122"></td>
+<td id="トイレ時間122">0 分 0 秒</td><td><textarea id="備考122" oninput="saveRemarks(122)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(122, '出席')">出席</button>
+<button onclick="toggleAttendance(122, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(122, '早退')">早退</button>
+<button onclick="toggleAttendance(122, '欠席')">欠席</button><br/>
+<button onclick="startTimer(122)">トイレ開始</button>
+<button onclick="stopTimer(122)">トイレ停止</button>
+<button onclick="resetTimer(122)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB123</td><td>SHAH AYUSHMA</td><td id="出席123"></td><td id="遅刻123"></td><td id="早退123"></td><td id="欠席123"></td>
+<td id="トイレ時間123">0 分 0 秒</td><td><textarea id="備考123" oninput="saveRemarks(123)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(123, '出席')">出席</button>
+<button onclick="toggleAttendance(123, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(123, '早退')">早退</button>
+<button onclick="toggleAttendance(123, '欠席')">欠席</button><br/>
+<button onclick="startTimer(123)">トイレ開始</button>
+<button onclick="stopTimer(123)">トイレ停止</button>
+<button onclick="resetTimer(123)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB124</td><td>SHAHI SIRJANA KUMARI</td><td id="出席124"></td><td id="遅刻124"></td><td id="早退124"></td><td id="欠席124"></td>
+<td id="トイレ時間124">0 分 0 秒</td><td><textarea id="備考124" oninput="saveRemarks(124)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(124, '出席')">出席</button>
+<button onclick="toggleAttendance(124, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(124, '早退')">早退</button>
+<button onclick="toggleAttendance(124, '欠席')">欠席</button><br/>
+<button onclick="startTimer(124)">トイレ開始</button>
+<button onclick="stopTimer(124)">トイレ停止</button>
+<button onclick="resetTimer(124)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB125</td><td>SHRESTHA BISHAL</td><td id="出席125"></td><td id="遅刻125"></td><td id="早退125"></td><td id="欠席125"></td>
+<td id="トイレ時間125">0 分 0 秒</td><td><textarea id="備考125" oninput="saveRemarks(125)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(125, '出席')">出席</button>
+<button onclick="toggleAttendance(125, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(125, '早退')">早退</button>
+<button onclick="toggleAttendance(125, '欠席')">欠席</button><br/>
+<button onclick="startTimer(125)">トイレ開始</button>
+<button onclick="stopTimer(125)">トイレ停止</button>
+<button onclick="resetTimer(125)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB126</td><td>SHRESTHA CHAMPAMAYA</td><td id="出席126"></td><td id="遅刻126"></td><td id="早退126"></td><td id="欠席126"></td>
+<td id="トイレ時間126">0 分 0 秒</td><td><textarea id="備考126" oninput="saveRemarks(126)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(126, '出席')">出席</button>
+<button onclick="toggleAttendance(126, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(126, '早退')">早退</button>
+<button onclick="toggleAttendance(126, '欠席')">欠席</button><br/>
+<button onclick="startTimer(126)">トイレ開始</button>
+<button onclick="stopTimer(126)">トイレ停止</button>
+<button onclick="resetTimer(126)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB127</td><td>SHRESTHA SARASWATI</td><td id="出席127"></td><td id="遅刻127"></td><td id="早退127"></td><td id="欠席127"></td>
+<td id="トイレ時間127">0 分 0 秒</td><td><textarea id="備考127" oninput="saveRemarks(127)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(127, '出席')">出席</button>
+<button onclick="toggleAttendance(127, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(127, '早退')">早退</button>
+<button onclick="toggleAttendance(127, '欠席')">欠席</button><br/>
+<button onclick="startTimer(127)">トイレ開始</button>
+<button onclick="stopTimer(127)">トイレ停止</button>
+<button onclick="resetTimer(127)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB128</td><td>SILWAL MILAN</td><td id="出席128"></td><td id="遅刻128"></td><td id="早退128"></td><td id="欠席128"></td>
+<td id="トイレ時間128">0 分 0 秒</td><td><textarea id="備考128" oninput="saveRemarks(128)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(128, '出席')">出席</button>
+<button onclick="toggleAttendance(128, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(128, '早退')">早退</button>
+<button onclick="toggleAttendance(128, '欠席')">欠席</button><br/>
+<button onclick="startTimer(128)">トイレ開始</button>
+<button onclick="stopTimer(128)">トイレ停止</button>
+<button onclick="resetTimer(128)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB129</td><td>SUNAR KISHAN</td><td id="出席129"></td><td id="遅刻129"></td><td id="早退129"></td><td id="欠席129"></td>
+<td id="トイレ時間129">0 分 0 秒</td><td><textarea id="備考129" oninput="saveRemarks(129)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(129, '出席')">出席</button>
+<button onclick="toggleAttendance(129, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(129, '早退')">早退</button>
+<button onclick="toggleAttendance(129, '欠席')">欠席</button><br/>
+<button onclick="startTimer(129)">トイレ開始</button>
+<button onclick="stopTimer(129)">トイレ停止</button>
+<button onclick="resetTimer(129)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB130</td><td>SUNAR MANIKA</td><td id="出席130"></td><td id="遅刻130"></td><td id="早退130"></td><td id="欠席130"></td>
+<td id="トイレ時間130">0 分 0 秒</td><td><textarea id="備考130" oninput="saveRemarks(130)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(130, '出席')">出席</button>
+<button onclick="toggleAttendance(130, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(130, '早退')">早退</button>
+<button onclick="toggleAttendance(130, '欠席')">欠席</button><br/>
+<button onclick="startTimer(130)">トイレ開始</button>
+<button onclick="stopTimer(130)">トイレ停止</button>
+<button onclick="resetTimer(130)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB131</td><td>TAJPURIYA AKSHYA KUMAR</td><td id="出席131"></td><td id="遅刻131"></td><td id="早退131"></td><td id="欠席131"></td>
+<td id="トイレ時間131">0 分 0 秒</td><td><textarea id="備考131" oninput="saveRemarks(131)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(131, '出席')">出席</button>
+<button onclick="toggleAttendance(131, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(131, '早退')">早退</button>
+<button onclick="toggleAttendance(131, '欠席')">欠席</button><br/>
+<button onclick="startTimer(131)">トイレ開始</button>
+<button onclick="stopTimer(131)">トイレ停止</button>
+<button onclick="resetTimer(131)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB132</td><td>TAMANG BELEE</td><td id="出席132"></td><td id="遅刻132"></td><td id="早退132"></td><td id="欠席132"></td>
+<td id="トイレ時間132">0 分 0 秒</td><td><textarea id="備考132" oninput="saveRemarks(132)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(132, '出席')">出席</button>
+<button onclick="toggleAttendance(132, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(132, '早退')">早退</button>
+<button onclick="toggleAttendance(132, '欠席')">欠席</button><br/>
+<button onclick="startTimer(132)">トイレ開始</button>
+<button onclick="stopTimer(132)">トイレ停止</button>
+<button onclick="resetTimer(132)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB133</td><td>TAMANG RAM BAHADUR</td><td id="出席133"></td><td id="遅刻133"></td><td id="早退133"></td><td id="欠席133"></td>
+<td id="トイレ時間133">0 分 0 秒</td><td><textarea id="備考133" oninput="saveRemarks(133)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(133, '出席')">出席</button>
+<button onclick="toggleAttendance(133, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(133, '早退')">早退</button>
+<button onclick="toggleAttendance(133, '欠席')">欠席</button><br/>
+<button onclick="startTimer(133)">トイレ開始</button>
+<button onclick="stopTimer(133)">トイレ停止</button>
+<button onclick="resetTimer(133)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB134</td><td>TAMANG YANGJI</td><td id="出席134"></td><td id="遅刻134"></td><td id="早退134"></td><td id="欠席134"></td>
+<td id="トイレ時間134">0 分 0 秒</td><td><textarea id="備考134" oninput="saveRemarks(134)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(134, '出席')">出席</button>
+<button onclick="toggleAttendance(134, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(134, '早退')">早退</button>
+<button onclick="toggleAttendance(134, '欠席')">欠席</button><br/>
+<button onclick="startTimer(134)">トイレ開始</button>
+<button onclick="stopTimer(134)">トイレ停止</button>
+<button onclick="resetTimer(134)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB135</td><td>THARU SAMJHANA</td><td id="出席135"></td><td id="遅刻135"></td><td id="早退135"></td><td id="欠席135"></td>
+<td id="トイレ時間135">0 分 0 秒</td><td><textarea id="備考135" oninput="saveRemarks(135)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(135, '出席')">出席</button>
+<button onclick="toggleAttendance(135, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(135, '早退')">早退</button>
+<button onclick="toggleAttendance(135, '欠席')">欠席</button><br/>
+<button onclick="startTimer(135)">トイレ開始</button>
+<button onclick="stopTimer(135)">トイレ停止</button>
+<button onclick="resetTimer(135)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB136</td><td>UPRETI ALISHA</td><td id="出席136"></td><td id="遅刻136"></td><td id="早退136"></td><td id="欠席136"></td>
+<td id="トイレ時間136">0 分 0 秒</td><td><textarea id="備考136" oninput="saveRemarks(136)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(136, '出席')">出席</button>
+<button onclick="toggleAttendance(136, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(136, '早退')">早退</button>
+<button onclick="toggleAttendance(136, '欠席')">欠席</button><br/>
+<button onclick="startTimer(136)">トイレ開始</button>
+<button onclick="stopTimer(136)">トイレ停止</button>
+<button onclick="resetTimer(136)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB137</td><td>YOGI GITA</td><td id="出席137"></td><td id="遅刻137"></td><td id="早退137"></td><td id="欠席137"></td>
+<td id="トイレ時間137">0 分 0 秒</td><td><textarea id="備考137" oninput="saveRemarks(137)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(137, '出席')">出席</button>
+<button onclick="toggleAttendance(137, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(137, '早退')">早退</button>
+<button onclick="toggleAttendance(137, '欠席')">欠席</button><br/>
+<button onclick="startTimer(137)">トイレ開始</button>
+<button onclick="stopTimer(137)">トイレ停止</button>
+<button onclick="resetTimer(137)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB138</td><td>YONJAN MAHENDRA</td><td id="出席138"></td><td id="遅刻138"></td><td id="早退138"></td><td id="欠席138"></td>
+<td id="トイレ時間138">0 分 0 秒</td><td><textarea id="備考138" oninput="saveRemarks(138)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(138, '出席')">出席</button>
+<button onclick="toggleAttendance(138, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(138, '早退')">早退</button>
+<button onclick="toggleAttendance(138, '欠席')">欠席</button><br/>
+<button onclick="startTimer(138)">トイレ開始</button>
+<button onclick="stopTimer(138)">トイレ停止</button>
+<button onclick="resetTimer(138)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB139</td><td>NGUYEN ANH VU</td><td id="出席139"></td><td id="遅刻139"></td><td id="早退139"></td><td id="欠席139"></td>
+<td id="トイレ時間139">0 分 0 秒</td><td><textarea id="備考139" oninput="saveRemarks(139)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(139, '出席')">出席</button>
+<button onclick="toggleAttendance(139, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(139, '早退')">早退</button>
+<button onclick="toggleAttendance(139, '欠席')">欠席</button><br/>
+<button onclick="startTimer(139)">トイレ開始</button>
+<button onclick="stopTimer(139)">トイレ停止</button>
+<button onclick="resetTimer(139)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB140</td><td>ADHIKARI BISHNU</td><td id="出席140"></td><td id="遅刻140"></td><td id="早退140"></td><td id="欠席140"></td>
+<td id="トイレ時間140">0 分 0 秒</td><td><textarea id="備考140" oninput="saveRemarks(140)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(140, '出席')">出席</button>
+<button onclick="toggleAttendance(140, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(140, '早退')">早退</button>
+<button onclick="toggleAttendance(140, '欠席')">欠席</button><br/>
+<button onclick="startTimer(140)">トイレ開始</button>
+<button onclick="stopTimer(140)">トイレ停止</button>
+<button onclick="resetTimer(140)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB141</td><td>ADHIKARI HARI KRISHNA</td><td id="出席141"></td><td id="遅刻141"></td><td id="早退141"></td><td id="欠席141"></td>
+<td id="トイレ時間141">0 分 0 秒</td><td><textarea id="備考141" oninput="saveRemarks(141)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(141, '出席')">出席</button>
+<button onclick="toggleAttendance(141, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(141, '早退')">早退</button>
+<button onclick="toggleAttendance(141, '欠席')">欠席</button><br/>
+<button onclick="startTimer(141)">トイレ開始</button>
+<button onclick="stopTimer(141)">トイレ停止</button>
+<button onclick="resetTimer(141)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB142</td><td>ANSARI SAJRUDIN</td><td id="出席142"></td><td id="遅刻142"></td><td id="早退142"></td><td id="欠席142"></td>
+<td id="トイレ時間142">0 分 0 秒</td><td><textarea id="備考142" oninput="saveRemarks(142)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(142, '出席')">出席</button>
+<button onclick="toggleAttendance(142, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(142, '早退')">早退</button>
+<button onclick="toggleAttendance(142, '欠席')">欠席</button><br/>
+<button onclick="startTimer(142)">トイレ開始</button>
+<button onclick="stopTimer(142)">トイレ停止</button>
+<button onclick="resetTimer(142)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB143</td><td>B K ROJINA</td><td id="出席143"></td><td id="遅刻143"></td><td id="早退143"></td><td id="欠席143"></td>
+<td id="トイレ時間143">0 分 0 秒</td><td><textarea id="備考143" oninput="saveRemarks(143)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(143, '出席')">出席</button>
+<button onclick="toggleAttendance(143, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(143, '早退')">早退</button>
+<button onclick="toggleAttendance(143, '欠席')">欠席</button><br/>
+<button onclick="startTimer(143)">トイレ開始</button>
+<button onclick="stopTimer(143)">トイレ停止</button>
+<button onclick="resetTimer(143)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB144</td><td>BANIYA JOSHINA</td><td id="出席144"></td><td id="遅刻144"></td><td id="早退144"></td><td id="欠席144"></td>
+<td id="トイレ時間144">0 分 0 秒</td><td><textarea id="備考144" oninput="saveRemarks(144)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(144, '出席')">出席</button>
+<button onclick="toggleAttendance(144, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(144, '早退')">早退</button>
+<button onclick="toggleAttendance(144, '欠席')">欠席</button><br/>
+<button onclick="startTimer(144)">トイレ開始</button>
+<button onclick="stopTimer(144)">トイレ停止</button>
+<button onclick="resetTimer(144)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB145</td><td>BANJARA SRIJANA</td><td id="出席145"></td><td id="遅刻145"></td><td id="早退145"></td><td id="欠席145"></td>
+<td id="トイレ時間145">0 分 0 秒</td><td><textarea id="備考145" oninput="saveRemarks(145)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(145, '出席')">出席</button>
+<button onclick="toggleAttendance(145, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(145, '早退')">早退</button>
+<button onclick="toggleAttendance(145, '欠席')">欠席</button><br/>
+<button onclick="startTimer(145)">トイレ開始</button>
+<button onclick="stopTimer(145)">トイレ停止</button>
+<button onclick="resetTimer(145)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB146</td><td>BASTOLA RAMANATH</td><td id="出席146"></td><td id="遅刻146"></td><td id="早退146"></td><td id="欠席146"></td>
+<td id="トイレ時間146">0 分 0 秒</td><td><textarea id="備考146" oninput="saveRemarks(146)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(146, '出席')">出席</button>
+<button onclick="toggleAttendance(146, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(146, '早退')">早退</button>
+<button onclick="toggleAttendance(146, '欠席')">欠席</button><br/>
+<button onclick="startTimer(146)">トイレ開始</button>
+<button onclick="stopTimer(146)">トイレ停止</button>
+<button onclick="resetTimer(146)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB147</td><td>BHANDARI LAXMI</td><td id="出席147"></td><td id="遅刻147"></td><td id="早退147"></td><td id="欠席147"></td>
+<td id="トイレ時間147">0 分 0 秒</td><td><textarea id="備考147" oninput="saveRemarks(147)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(147, '出席')">出席</button>
+<button onclick="toggleAttendance(147, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(147, '早退')">早退</button>
+<button onclick="toggleAttendance(147, '欠席')">欠席</button><br/>
+<button onclick="startTimer(147)">トイレ開始</button>
+<button onclick="stopTimer(147)">トイレ停止</button>
+<button onclick="resetTimer(147)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB148</td><td>BUDHATHOKI KHADAK BAHADUR</td><td id="出席148"></td><td id="遅刻148"></td><td id="早退148"></td><td id="欠席148"></td>
+<td id="トイレ時間148">0 分 0 秒</td><td><textarea id="備考148" oninput="saveRemarks(148)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(148, '出席')">出席</button>
+<button onclick="toggleAttendance(148, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(148, '早退')">早退</button>
+<button onclick="toggleAttendance(148, '欠席')">欠席</button><br/>
+<button onclick="startTimer(148)">トイレ開始</button>
+<button onclick="stopTimer(148)">トイレ停止</button>
+<button onclick="resetTimer(148)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB149</td><td>CHHUMI TAMANG LAXMI</td><td id="出席149"></td><td id="遅刻149"></td><td id="早退149"></td><td id="欠席149"></td>
+<td id="トイレ時間149">0 分 0 秒</td><td><textarea id="備考149" oninput="saveRemarks(149)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(149, '出席')">出席</button>
+<button onclick="toggleAttendance(149, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(149, '早退')">早退</button>
+<button onclick="toggleAttendance(149, '欠席')">欠席</button><br/>
+<button onclick="startTimer(149)">トイレ開始</button>
+<button onclick="stopTimer(149)">トイレ停止</button>
+<button onclick="resetTimer(149)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB150</td><td>GHIMIRE BISHNU</td><td id="出席150"></td><td id="遅刻150"></td><td id="早退150"></td><td id="欠席150"></td>
+<td id="トイレ時間150">0 分 0 秒</td><td><textarea id="備考150" oninput="saveRemarks(150)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(150, '出席')">出席</button>
+<button onclick="toggleAttendance(150, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(150, '早退')">早退</button>
+<button onclick="toggleAttendance(150, '欠席')">欠席</button><br/>
+<button onclick="startTimer(150)">トイレ開始</button>
+<button onclick="stopTimer(150)">トイレ停止</button>
+<button onclick="resetTimer(150)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB151</td><td>GIRI SABIN</td><td id="出席151"></td><td id="遅刻151"></td><td id="早退151"></td><td id="欠席151"></td>
+<td id="トイレ時間151">0 分 0 秒</td><td><textarea id="備考151" oninput="saveRemarks(151)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(151, '出席')">出席</button>
+<button onclick="toggleAttendance(151, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(151, '早退')">早退</button>
+<button onclick="toggleAttendance(151, '欠席')">欠席</button><br/>
+<button onclick="startTimer(151)">トイレ開始</button>
+<button onclick="stopTimer(151)">トイレ停止</button>
+<button onclick="resetTimer(151)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB152</td><td>KARKI SURAJ</td><td id="出席152"></td><td id="遅刻152"></td><td id="早退152"></td><td id="欠席152"></td>
+<td id="トイレ時間152">0 分 0 秒</td><td><textarea id="備考152" oninput="saveRemarks(152)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(152, '出席')">出席</button>
+<button onclick="toggleAttendance(152, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(152, '早退')">早退</button>
+<button onclick="toggleAttendance(152, '欠席')">欠席</button><br/>
+<button onclick="startTimer(152)">トイレ開始</button>
+<button onclick="stopTimer(152)">トイレ停止</button>
+<button onclick="resetTimer(152)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB153</td><td>KHADKA GITA</td><td id="出席153"></td><td id="遅刻153"></td><td id="早退153"></td><td id="欠席153"></td>
+<td id="トイレ時間153">0 分 0 秒</td><td><textarea id="備考153" oninput="saveRemarks(153)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(153, '出席')">出席</button>
+<button onclick="toggleAttendance(153, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(153, '早退')">早退</button>
+<button onclick="toggleAttendance(153, '欠席')">欠席</button><br/>
+<button onclick="startTimer(153)">トイレ開始</button>
+<button onclick="stopTimer(153)">トイレ停止</button>
+<button onclick="resetTimer(153)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB154</td><td>なまえ</td><td id="出席154"></td><td id="遅刻154"></td><td id="早退154"></td><td id="欠席154"></td>
+<td id="トイレ時間154">0 分 0 秒</td><td><textarea id="備考154" oninput="saveRemarks(154)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(154, '出席')">出席</button>
+<button onclick="toggleAttendance(154, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(154, '早退')">早退</button>
+<button onclick="toggleAttendance(154, '欠席')">欠席</button><br/>
+<button onclick="startTimer(154)">トイレ開始</button>
+<button onclick="stopTimer(154)">トイレ停止</button>
+<button onclick="resetTimer(154)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB155</td><td>LAMA NHESANG</td><td id="出席155"></td><td id="遅刻155"></td><td id="早退155"></td><td id="欠席155"></td>
+<td id="トイレ時間155">0 分 0 秒</td><td><textarea id="備考155" oninput="saveRemarks(155)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(155, '出席')">出席</button>
+<button onclick="toggleAttendance(155, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(155, '早退')">早退</button>
+<button onclick="toggleAttendance(155, '欠席')">欠席</button><br/>
+<button onclick="startTimer(155)">トイレ開始</button>
+<button onclick="stopTimer(155)">トイレ停止</button>
+<button onclick="resetTimer(155)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB156</td><td>LAMA PASANG DORJE</td><td id="出席156"></td><td id="遅刻156"></td><td id="早退156"></td><td id="欠席156"></td>
+<td id="トイレ時間156">0 分 0 秒</td><td><textarea id="備考156" oninput="saveRemarks(156)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(156, '出席')">出席</button>
+<button onclick="toggleAttendance(156, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(156, '早退')">早退</button>
+<button onclick="toggleAttendance(156, '欠席')">欠席</button><br/>
+<button onclick="startTimer(156)">トイレ開始</button>
+<button onclick="stopTimer(156)">トイレ停止</button>
+<button onclick="resetTimer(156)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB157</td><td>LAMICHHANE ASHMITA</td><td id="出席157"></td><td id="遅刻157"></td><td id="早退157"></td><td id="欠席157"></td>
+<td id="トイレ時間157">0 分 0 秒</td><td><textarea id="備考157" oninput="saveRemarks(157)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(157, '出席')">出席</button>
+<button onclick="toggleAttendance(157, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(157, '早退')">早退</button>
+<button onclick="toggleAttendance(157, '欠席')">欠席</button><br/>
+<button onclick="startTimer(157)">トイレ開始</button>
+<button onclick="stopTimer(157)">トイレ停止</button>
+<button onclick="resetTimer(157)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB158</td><td>LAMICHHANE BISHNU</td><td id="出席158"></td><td id="遅刻158"></td><td id="早退158"></td><td id="欠席158"></td>
+<td id="トイレ時間158">0 分 0 秒</td><td><textarea id="備考158" oninput="saveRemarks(158)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(158, '出席')">出席</button>
+<button onclick="toggleAttendance(158, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(158, '早退')">早退</button>
+<button onclick="toggleAttendance(158, '欠席')">欠席</button><br/>
+<button onclick="startTimer(158)">トイレ開始</button>
+<button onclick="stopTimer(158)">トイレ停止</button>
+<button onclick="resetTimer(158)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB159</td><td>MAHATO ASMITA</td><td id="出席159"></td><td id="遅刻159"></td><td id="早退159"></td><td id="欠席159"></td>
+<td id="トイレ時間159">0 分 0 秒</td><td><textarea id="備考159" oninput="saveRemarks(159)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(159, '出席')">出席</button>
+<button onclick="toggleAttendance(159, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(159, '早退')">早退</button>
+<button onclick="toggleAttendance(159, '欠席')">欠席</button><br/>
+<button onclick="startTimer(159)">トイレ開始</button>
+<button onclick="stopTimer(159)">トイレ停止</button>
+<button onclick="resetTimer(159)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB160</td><td>MAHATO RAMASANKAR</td><td id="出席160"></td><td id="遅刻160"></td><td id="早退160"></td><td id="欠席160"></td>
+<td id="トイレ時間160">0 分 0 秒</td><td><textarea id="備考160" oninput="saveRemarks(160)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(160, '出席')">出席</button>
+<button onclick="toggleAttendance(160, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(160, '早退')">早退</button>
+<button onclick="toggleAttendance(160, '欠席')">欠席</button><br/>
+<button onclick="startTimer(160)">トイレ開始</button>
+<button onclick="stopTimer(160)">トイレ停止</button>
+<button onclick="resetTimer(160)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB161</td><td>MAHATO YUG MAYA</td><td id="出席161"></td><td id="遅刻161"></td><td id="早退161"></td><td id="欠席161"></td>
+<td id="トイレ時間161">0 分 0 秒</td><td><textarea id="備考161" oninput="saveRemarks(161)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(161, '出席')">出席</button>
+<button onclick="toggleAttendance(161, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(161, '早退')">早退</button>
+<button onclick="toggleAttendance(161, '欠席')">欠席</button><br/>
+<button onclick="startTimer(161)">トイレ開始</button>
+<button onclick="stopTimer(161)">トイレ停止</button>
+<button onclick="resetTimer(161)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB162</td><td>PARAJULI SURYA PRASAD</td><td id="出席162"></td><td id="遅刻162"></td><td id="早退162"></td><td id="欠席162"></td>
+<td id="トイレ時間162">0 分 0 秒</td><td><textarea id="備考162" oninput="saveRemarks(162)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(162, '出席')">出席</button>
+<button onclick="toggleAttendance(162, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(162, '早退')">早退</button>
+<button onclick="toggleAttendance(162, '欠席')">欠席</button><br/>
+<button onclick="startTimer(162)">トイレ開始</button>
+<button onclick="stopTimer(162)">トイレ停止</button>
+<button onclick="resetTimer(162)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB163</td><td>PARIYAR SAROJ</td><td id="出席163"></td><td id="遅刻163"></td><td id="早退163"></td><td id="欠席163"></td>
+<td id="トイレ時間163">0 分 0 秒</td><td><textarea id="備考163" oninput="saveRemarks(163)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(163, '出席')">出席</button>
+<button onclick="toggleAttendance(163, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(163, '早退')">早退</button>
+<button onclick="toggleAttendance(163, '欠席')">欠席</button><br/>
+<button onclick="startTimer(163)">トイレ開始</button>
+<button onclick="stopTimer(163)">トイレ停止</button>
+<button onclick="resetTimer(163)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB164</td><td>PUN MAGAR SHAKTI</td><td id="出席164"></td><td id="遅刻164"></td><td id="早退164"></td><td id="欠席164"></td>
+<td id="トイレ時間164">0 分 0 秒</td><td><textarea id="備考164" oninput="saveRemarks(164)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(164, '出席')">出席</button>
+<button onclick="toggleAttendance(164, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(164, '早退')">早退</button>
+<button onclick="toggleAttendance(164, '欠席')">欠席</button><br/>
+<button onclick="startTimer(164)">トイレ開始</button>
+<button onclick="stopTimer(164)">トイレ停止</button>
+<button onclick="resetTimer(164)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB165</td><td>RAI NILAM</td><td id="出席165"></td><td id="遅刻165"></td><td id="早退165"></td><td id="欠席165"></td>
+<td id="トイレ時間165">0 分 0 秒</td><td><textarea id="備考165" oninput="saveRemarks(165)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(165, '出席')">出席</button>
+<button onclick="toggleAttendance(165, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(165, '早退')">早退</button>
+<button onclick="toggleAttendance(165, '欠席')">欠席</button><br/>
+<button onclick="startTimer(165)">トイレ開始</button>
+<button onclick="stopTimer(165)">トイレ停止</button>
+<button onclick="resetTimer(165)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB166</td><td>RAI PRAKASH</td><td id="出席166"></td><td id="遅刻166"></td><td id="早退166"></td><td id="欠席166"></td>
+<td id="トイレ時間166">0 分 0 秒</td><td><textarea id="備考166" oninput="saveRemarks(166)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(166, '出席')">出席</button>
+<button onclick="toggleAttendance(166, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(166, '早退')">早退</button>
+<button onclick="toggleAttendance(166, '欠席')">欠席</button><br/>
+<button onclick="startTimer(166)">トイレ開始</button>
+<button onclick="stopTimer(166)">トイレ停止</button>
+<button onclick="resetTimer(166)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB167</td><td>RAI SIMAN</td><td id="出席167"></td><td id="遅刻167"></td><td id="早退167"></td><td id="欠席167"></td>
+<td id="トイレ時間167">0 分 0 秒</td><td><textarea id="備考167" oninput="saveRemarks(167)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(167, '出席')">出席</button>
+<button onclick="toggleAttendance(167, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(167, '早退')">早退</button>
+<button onclick="toggleAttendance(167, '欠席')">欠席</button><br/>
+<button onclick="startTimer(167)">トイレ開始</button>
+<button onclick="stopTimer(167)">トイレ停止</button>
+<button onclick="resetTimer(167)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB168</td><td>RAJBANSHI SUNDAR</td><td id="出席168"></td><td id="遅刻168"></td><td id="早退168"></td><td id="欠席168"></td>
+<td id="トイレ時間168">0 分 0 秒</td><td><textarea id="備考168" oninput="saveRemarks(168)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(168, '出席')">出席</button>
+<button onclick="toggleAttendance(168, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(168, '早退')">早退</button>
+<button onclick="toggleAttendance(168, '欠席')">欠席</button><br/>
+<button onclick="startTimer(168)">トイレ開始</button>
+<button onclick="stopTimer(168)">トイレ停止</button>
+<button onclick="resetTimer(168)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB169</td><td>SAH MUKESH</td><td id="出席169"></td><td id="遅刻169"></td><td id="早退169"></td><td id="欠席169"></td>
+<td id="トイレ時間169">0 分 0 秒</td><td><textarea id="備考169" oninput="saveRemarks(169)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(169, '出席')">出席</button>
+<button onclick="toggleAttendance(169, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(169, '早退')">早退</button>
+<button onclick="toggleAttendance(169, '欠席')">欠席</button><br/>
+<button onclick="startTimer(169)">トイレ開始</button>
+<button onclick="stopTimer(169)">トイレ停止</button>
+<button onclick="resetTimer(169)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB170</td><td>SUNAR JAMUNA</td><td id="出席170"></td><td id="遅刻170"></td><td id="早退170"></td><td id="欠席170"></td>
+<td id="トイレ時間170">0 分 0 秒</td><td><textarea id="備考170" oninput="saveRemarks(170)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(170, '出席')">出席</button>
+<button onclick="toggleAttendance(170, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(170, '早退')">早退</button>
+<button onclick="toggleAttendance(170, '欠席')">欠席</button><br/>
+<button onclick="startTimer(170)">トイレ開始</button>
+<button onclick="stopTimer(170)">トイレ停止</button>
+<button onclick="resetTimer(170)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB171</td><td>なまえ</td><td id="出席171"></td><td id="遅刻171"></td><td id="早退171"></td><td id="欠席171"></td>
+<td id="トイレ時間171">0 分 0 秒</td><td><textarea id="備考171" oninput="saveRemarks(171)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(171, '出席')">出席</button>
+<button onclick="toggleAttendance(171, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(171, '早退')">早退</button>
+<button onclick="toggleAttendance(171, '欠席')">欠席</button><br/>
+<button onclick="startTimer(171)">トイレ開始</button>
+<button onclick="stopTimer(171)">トイレ停止</button>
+<button onclick="resetTimer(171)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB172</td><td>TAMANG NIR BAHADUR</td><td id="出席172"></td><td id="遅刻172"></td><td id="早退172"></td><td id="欠席172"></td>
+<td id="トイレ時間172">0 分 0 秒</td><td><textarea id="備考172" oninput="saveRemarks(172)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(172, '出席')">出席</button>
+<button onclick="toggleAttendance(172, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(172, '早退')">早退</button>
+<button onclick="toggleAttendance(172, '欠席')">欠席</button><br/>
+<button onclick="startTimer(172)">トイレ開始</button>
+<button onclick="stopTimer(172)">トイレ停止</button>
+<button onclick="resetTimer(172)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB173</td><td>TAMANG PUSHA</td><td id="出席173"></td><td id="遅刻173"></td><td id="早退173"></td><td id="欠席173"></td>
+<td id="トイレ時間173">0 分 0 秒</td><td><textarea id="備考173" oninput="saveRemarks(173)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(173, '出席')">出席</button>
+<button onclick="toggleAttendance(173, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(173, '早退')">早退</button>
+<button onclick="toggleAttendance(173, '欠席')">欠席</button><br/>
+<button onclick="startTimer(173)">トイレ開始</button>
+<button onclick="stopTimer(173)">トイレ停止</button>
+<button onclick="resetTimer(173)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB174</td><td>THULUNG ANJANA</td><td id="出席174"></td><td id="遅刻174"></td><td id="早退174"></td><td id="欠席174"></td>
+<td id="トイレ時間174">0 分 0 秒</td><td><textarea id="備考174" oninput="saveRemarks(174)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(174, '出席')">出席</button>
+<button onclick="toggleAttendance(174, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(174, '早退')">早退</button>
+<button onclick="toggleAttendance(174, '欠席')">欠席</button><br/>
+<button onclick="startTimer(174)">トイレ開始</button>
+<button onclick="stopTimer(174)">トイレ停止</button>
+<button onclick="resetTimer(174)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB175</td><td>ALI UMAIR</td><td id="出席175"></td><td id="遅刻175"></td><td id="早退175"></td><td id="欠席175"></td>
+<td id="トイレ時間175">0 分 0 秒</td><td><textarea id="備考175" oninput="saveRemarks(175)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(175, '出席')">出席</button>
+<button onclick="toggleAttendance(175, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(175, '早退')">早退</button>
+<button onclick="toggleAttendance(175, '欠席')">欠席</button><br/>
+<button onclick="startTimer(175)">トイレ開始</button>
+<button onclick="stopTimer(175)">トイレ停止</button>
+<button onclick="resetTimer(175)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB176</td><td>FIAZ MUHAMMAD AAQIB</td><td id="出席176"></td><td id="遅刻176"></td><td id="早退176"></td><td id="欠席176"></td>
+<td id="トイレ時間176">0 分 0 秒</td><td><textarea id="備考176" oninput="saveRemarks(176)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(176, '出席')">出席</button>
+<button onclick="toggleAttendance(176, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(176, '早退')">早退</button>
+<button onclick="toggleAttendance(176, '欠席')">欠席</button><br/>
+<button onclick="startTimer(176)">トイレ開始</button>
+<button onclick="stopTimer(176)">トイレ停止</button>
+<button onclick="resetTimer(176)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB177</td><td>RIAZ MUHAMMAD SHEHARYAR</td><td id="出席177"></td><td id="遅刻177"></td><td id="早退177"></td><td id="欠席177"></td>
+<td id="トイレ時間177">0 分 0 秒</td><td><textarea id="備考177" oninput="saveRemarks(177)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(177, '出席')">出席</button>
+<button onclick="toggleAttendance(177, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(177, '早退')">早退</button>
+<button onclick="toggleAttendance(177, '欠席')">欠席</button><br/>
+<button onclick="startTimer(177)">トイレ開始</button>
+<button onclick="stopTimer(177)">トイレ停止</button>
+<button onclick="resetTimer(177)">リセット</button>
+</td>
+</tr>
+<tr>
+<td>24GB178</td><td>HNIN NANDAR KYAW</td><td id="出席178"></td><td id="遅刻178"></td><td id="早退178"></td><td id="欠席178"></td>
+<td id="トイレ時間178">0 分 0 秒</td><td><textarea id="備考178" oninput="saveRemarks(178)"></textarea></td>
+<td>
+<button onclick="toggleAttendance(178, '出席')">出席</button>
+<button onclick="toggleAttendance(178, '遅刻')">遅刻</button>
+<button onclick="toggleAttendance(178, '早退')">早退</button>
+<button onclick="toggleAttendance(178, '欠席')">欠席</button><br/>
+<button onclick="startTimer(178)">トイレ開始</button>
+<button onclick="stopTimer(178)">トイレ停止</button>
+<button onclick="resetTimer(178)">リセット</button>
+</td>
+</tr>
+</tbody>
+</table>
+<script>
+function exportToCSV() {
+    let csv = '番号,名前,出席,遅刻,早退,欠席,トイレ時間,備考\n';
+    const rows = document.querySelectorAll("tbody tr");
+    rows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        const number = cells[0].innerText;
+        const name = cells[1].innerText;
+        const 出席 = cells[2].innerText;
+        const 遅刻 = cells[3].innerText;
+        const 早退 = cells[4].innerText;
+        const 欠席 = cells[5].innerText;
+        const トイレ時間 = cells[6].innerText;
+        const 備考 = cells[7].querySelector("textarea").value.replace(/\n/g, " ");
+        csv += `${number},${name},${出席},${遅刻},${早退},${欠席},${トイレ時間},${備考}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "attendance_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+<button onclick="exportToCSV()" style="margin: 20px; padding: 10px;">CSVとして出力</button>
+</body>
+</html>
